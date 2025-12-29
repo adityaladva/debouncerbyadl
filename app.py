@@ -4,17 +4,17 @@ from email.message import EmailMessage
 import re
 
 # =========================
-# DUMMY GMAIL CREDENTIALS
-# (REPLACE WITH REAL ONES)
+# DUMMY CREDENTIALS
+# REPLACE WITH REAL ONES
 # =========================
 GMAIL_USER = "protectbyadl@gmail.com"
-GMAIL_APP_PASSWORD = "aobmritwgyugqrat"   # DUMMY APP PASSWORD
+GMAIL_APP_PASSWORD = "aobmritwgyugqrat"  # example format (no spaces)
 # =========================
 
 st.set_page_config(page_title="Email Validator", page_icon="📧")
 
 st.title("📧 Email Validator (SMTP Debouncer)")
-st.write("Checks whether an email is accepted by the mail server using Gmail SMTP.")
+st.write("Checks whether an email is accepted by the mail server using Gmail SMTP (587).")
 
 email = st.text_input("Enter email address")
 
@@ -36,8 +36,13 @@ if st.button("Check Email"):
             msg["Subject"] = "SMTP Validation Test"
             msg.set_content("Email validation test")
 
-            server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=6)
+            # --- SMTP via 587 ---
+            server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
             server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
+
             server.send_message(msg)
             server.quit()
 
@@ -45,6 +50,12 @@ if st.button("Check Email"):
 
         except smtplib.SMTPRecipientsRefused:
             st.error("❌ Email rejected by recipient server")
+
+        except smtplib.SMTPAuthenticationError:
+            st.error("❌ Gmail authentication failed (check app password)")
+
+        except smtplib.SMTPException as e:
+            st.error(f"❌ SMTP error: {e}")
 
         except Exception as e:
             st.error(f"⚠️ Error: {e}")
