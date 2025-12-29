@@ -9,6 +9,8 @@ st.markdown(
     <h2>SMTP Delivery Quality Demo</h2>
     <p><b>ASTRA CONSULTANCY | INFURA TECHNOLOGIES</b></p>
     <p>Free Email SMTP Service – Product Sample</p>
+    <p>contact us on LinkedIn: https://www.linkedin.com/in/aditya-ladva/ <p>
+    <p> For higher volume contact us at protectbyadl@gmail.com with subject as "CONTRACT" <p>
     <hr>
     """,
     unsafe_allow_html=True
@@ -26,7 +28,7 @@ subject = st.text_input("Subject", "SMTP Delivery Quality Test")
 
 # FIXED MESSAGE + SIGNATURE
 EMAIL_BODY = """This email is sent to demonstrate SMTP delivery quality
-using our free email SMTP service.
+using our free email SMTP service & Software Quality.
 
 ---
 A FREE PRODUCT BY ADL | ASTRA CONSULTANCY | INFURATECHNOLOGIES
