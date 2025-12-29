@@ -52,7 +52,7 @@ def send_mail():
         server.send_message(msg)
         server.quit()
 
-        return "✅ Email accepted by SMTP server"
+        return "✅ Email Sent Successfully"
 
     except smtplib.SMTPRecipientsRefused:
         return "❌ Delivery failed: Email does not exist"
