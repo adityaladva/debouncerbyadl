@@ -1,58 +1,65 @@
+import smtplib, ssl
 import streamlit as st
-import smtplib
 from email.message import EmailMessage
-import re
 
-# ===== DUMMY CREDENTIALS =====
-GMAIL_USER = "protectbyadl@gmail.com"
-GMAIL_APP_PASSWORD = "aobmritwgyugqrat"  # dummy
-# =============================
+st.set_page_config(page_title="SMTP Delivery Demo", layout="centered")
 
-st.set_page_config(page_title="Gmail Deliverability Checker", page_icon="📧")
+st.markdown(
+    """
+    <h2>SMTP Delivery Quality Demo</h2>
+    <p><b>ASTRA CONSULTANCY | INFURA TECHNOLOGIES</b></p>
+    <p>Free Email SMTP Service – Product Sample</p>
+    <hr>
+    """,
+    unsafe_allow_html=True
+)
 
-st.title("📧 Gmail Deliverability Checker")
-st.write("Checks whether a Gmail address is deliverable (SMTP acceptance).")
+# SMTP CONFIG (DEMO)
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "protectbyadl@gmail.com"
+SMTP_PASS = "aobmritwgyugqrat"  # demo
 
-email = st.text_input("Enter Gmail address")
+# INPUTS
+to_email = st.text_input("Recipient Email")
+subject = st.text_input("Subject", "SMTP Delivery Quality Test")
 
-def is_valid_gmail(email):
-    return re.match(r"^[^@]+@gmail\.com$", email)
+# FIXED MESSAGE + SIGNATURE
+EMAIL_BODY = """This email is sent to demonstrate SMTP delivery quality
+using our free email SMTP service.
 
-if st.button("Check"):
-    if not email:
-        st.warning("Please enter an email address.")
+---
+A FREE PRODUCT BY ADL | ASTRA CONSULTANCY | INFURATECHNOLOGIES
 
-    elif not is_valid_gmail(email):
-        st.error("❌ Invalid Gmail format")
+For higher volume email requirements, contact us on LinkedIn:
+https://www.linkedin.com/in/aditya-ladva/
+"""
 
+def send_mail():
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
+        server.starttls(context=ssl.create_default_context())
+        server.login(SMTP_USER, SMTP_PASS)
+
+        msg = EmailMessage()
+        msg["From"] = SMTP_USER
+        msg["To"] = to_email
+        msg["Subject"] = subject
+        msg.set_content(EMAIL_BODY)
+
+        server.send_message(msg)
+        server.quit()
+
+        return "✅ Email accepted by SMTP server"
+
+    except smtplib.SMTPRecipientsRefused:
+        return "❌ Delivery failed: Email does not exist"
+
+    except Exception as e:
+        return f"⚠️ SMTP Error: {e}"
+
+if st.button("Send Test Email"):
+    if not to_email:
+        st.warning("Please enter recipient email")
     else:
-        try:
-            msg = EmailMessage()
-            msg["From"] = GMAIL_USER
-            msg["To"] = email
-            msg["Subject"] = "Deliverability Test"
-            msg.set_content("Testing deliverability")
-
-            server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-
-            # If Gmail accepts this, it is deliverable
-            server.send_message(msg)
-            server.quit()
-
-            st.success("✅ DELIVERABLE (Accepted by Gmail SMTP)")
-
-        except smtplib.SMTPRecipientsRefused:
-            st.error("❌ UNDELIVERABLE (Rejected by Gmail)")
-
-        except smtplib.SMTPAuthenticationError:
-            st.error("⚠️ AUTH ERROR (Invalid App Password)")
-
-        except smtplib.SMTPException as e:
-            st.error(f"⚠️ SMTP ERROR: {e}")
-
-        except Exception as e:
-            st.error(f"⚠️ ERROR: {e}")
+        st.info(send_mail())
